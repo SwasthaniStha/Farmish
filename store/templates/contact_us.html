@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<!-- Header-->
+<header class="bg-success py-5">
+    <div class="container px-4 px-lg-5 my-5">
+        <div class="text-center text-white">
+            <h1 class="display-4 fw-bolder">Contact Us...</h1>
+            <p class="lead fw-normal text-white-50 mb-0">Contact Information...</p>
+        </div>
+    </div>
+</header>
+
+<div class="container">
+    <h1 class="my-4">Contact Us</h1>
+
+    <div class="row">
+        <div class="col-lg-6">
+            <form action="{% url 'contact_us' %}" method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-primary" style="background-color: #198754; border-color: #198754;">Submit</button>
+            </form>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="p-3"> 
+                <h2>Contact Information</h2>
+                <p>Farmish</p>
+                <p>Kathmandu</p>
+                <p>Naxal</p>
+                <p>Phone: (123) 456-7890</p>
+                <p>Email: farmish63@gmail.com</p>
+
+                <h3>Departments</h3>
+                <ul>
+                    <li>Customer Service: (123) 456-7891</li>
+                    <li>Sales: (123) 456-7892</li>
+                    <li>Support: (123) 456-7893</li>
+                    <li>Marketing: (123) 456-7894</li>
+                    <li>Human Resources: (123) 456-7895</li>
+                </ul>
+
+                <h3>Business Hours</h3>
+                <p>Monday - Friday: 9:00 AM to 5:00 PM</p>
+                <p>Saturday: 10:00 AM to 2:00 PM</p>
+                <p>Sunday: Closed</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

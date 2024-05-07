@@ -1,0 +1,33 @@
+{% extends 'product/base.html' %}
+
+{% block content %}
+    <h1>Orders</h1>
+    <br><br>
+    <table>
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Customer</th>
+                <th>Quantity</th>
+                <th>Address</th>
+                <th>Phone</th>
+                <th>Date</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td>{{ order.product }}</td>
+                <td>{{ order.customer }}</td>
+                <td>{{ order.quantity }}</td>
+                <td>{{ order.address }}</td>
+                <td>{{ order.phone }}</td>
+                <td>{{ order.date }}</td>
+                <td>{{ order.status }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+{% endblock content %}
