@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Orders</title>
+</head>
+<body>
+    <h1>Orders</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Customer</th>
+                <th>Quantity</th>
+                <th>Address</th>
+                <th>Phone</th>
+                <th>Date</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td>{{ order.product }}</td>
+                <td>{{ order.customer }}</td>
+                <td>{{ order.quantity }}</td>
+                <td>{{ order.address }}</td>
+                <td>{{ order.phone }}</td>
+                <td>{{ order.date }}</td>
+                <td>{{ order.status }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
