@@ -1,0 +1,23 @@
+<!-- product_detail.html -->
+{% extends 'product/base.html' %}
+{% block title %}Product Details - {{ product.product_name }}{% endblock %}
+
+{% block content %}
+<h1>Product Detail</h1>
+
+<div class="product-detail">
+    <div class="product-image">
+        <img src="{{ product.product_image.url }}" alt="{{ product.product_name }}">
+    </div>
+    <div class="product-info">
+    <h2>{{ product.product_name }}</h2>
+    <p>Price: ${{ product.rate }}</p>
+    <p>Total Quantity: {{ product.total_quantity }}</p>
+    <p>Available Quantity: {{ product.available_quantity }}</p>
+    <p>Sold Quantity: {{ product.sold_quantity }}</p>
+    <p>Listed Date: {{ product.Listed_Date }}</p>
+    <p>Lifespan: {{ product.lifespan }} days</p>
+    <!-- Add any other product details you want to display -->
+</div>
+</div>
+{% endblock %}

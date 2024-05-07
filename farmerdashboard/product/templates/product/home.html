@@ -1,0 +1,15 @@
+{% extends 'product/base.html' %}
+
+{% block title %}Home - Farmer's Dashboard{% endblock %}
+
+{% block content %}
+<h1>Welcome to Farmer's Dashboard</h1>
+
+<h2>Add Product</h2>
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Add Product</button>
+</form>
+
+{% endblock %}

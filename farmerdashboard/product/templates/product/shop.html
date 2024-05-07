@@ -1,0 +1,22 @@
+{% extends 'product/base.html' %}
+{% block title %}My Shop - Farmer's Dashboard{% endblock %}
+
+{% block content %}
+<h1>My Shop</h1>
+<div class="product-container">
+    {% for product in products %}
+    <div class="product-card">
+        <img src="{{ product.product_image.url }}" alt="{{ product.product_name }}">
+        <div class="product-info">
+            <h3>{{ product.product_name }}</h3>
+            <p class="price">Price: NPR {{ product.rate }}</p>
+            
+            {% if product.is_sale%}
+            <p class="discounted-price"> Discounted Price: NPR {{ product.sale_price  }}</p>
+            {% endif %}
+            <a href="{% url 'view_product' product.id %}" class="btn btn-primary">View Product</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
