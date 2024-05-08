@@ -3,20 +3,40 @@
 
 {% block content %}
 <h1>My Shop</h1>
-<div class="product-container">
-    {% for product in products %}
-    <div class="product-card">
-        <img src="{{ product.product_image.url }}" alt="{{ product.product_name }}">
-        <div class="product-info">
-            <h3>{{ product.product_name }}</h3>
-            <p class="price">Price: ${{ product.rate }}</p>
-            
-            {% if product.is_sale%}
-            <p class="Discounted Price"> Discounted Price: ${{ product.sale_price  }}</p>
-            {% endif %}
-            <a href="{% url 'product:view_product' product.id %}" class="btn btn-primary">View Product</a>
-        </div>
-    </div>
-    {% endfor %}
-</div>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Product Name</th>
+            <th>Price</th>
+            <th>Discounted Price</th>
+            <th>Total Quantity</th>
+            <th>Available Quantity</th>
+            <th>Sold Quantity</th>
+            <th>Listed Date</th>
+            <th>Lifespan</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for product in products %}
+        <tr>
+            <td>{{ product.product_name }}</td>
+            <td>${{ product.rate }}</td>
+            <td>
+                {% if product.is_sale %}
+                    ${{ product.sale_price }}
+                {% else %}
+                    -
+                {% endif %}
+            </td>
+            <td>{{ product.total_quantity }}</td>
+            <td>{{ product.available_quantity }}</td>
+            <td>{{ product.sold_quantity }}</td>
+            <td>{{ product.Listed_Date }}</td>
+            <td>{{ product.lifespan }} days</td>
+            <td><a href="{% url 'product:view_product' product.id %}" class="btn btn-primary">View Product</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
 {% endblock %}
