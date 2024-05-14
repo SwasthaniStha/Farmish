@@ -1,33 +1,17 @@
 {% extends 'product/base.html' %}
 
 {% block content %}
-    <h1>Orders</h1>
-    <br><br>
-    <table>
-        <thead>
-            <tr>
-                <th>Product</th>
-                <th>Customer</th>
-                <th>Quantity</th>
-                <th>Address</th>
-                <th>Phone</th>
-                <th>Date</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for order in orders %}
-            <tr>
-                <td>{{ order.product }}</td>
-                <td>{{ order.customer }}</td>
-                <td>{{ order.quantity }}</td>
-                <td>{{ order.address }}</td>
-                <td>{{ order.phone }}</td>
-                <td>{{ order.date }}</td>
-                <td>{{ order.status }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+{% for order in orders %}
+<h2>Order #{{ order.id }}</h2>
+<p>Status: {{ order.get_status_display }}</p>
+<p>Billing Address: {{ order.shipping_address }}</p>
+<h3>Ordered Items:</h3>
+<ul>
+    {% for item in order_items %}
+    {% if item.order == order %}
+    <li>{{ item.product.product_name }} - Quantity: {{ item.quantity }} - Price: {{ item.price }}</li>
+    {% endif %}
+    {% endfor %}
+</ul>
+{% endfor %}
 {% endblock content %}

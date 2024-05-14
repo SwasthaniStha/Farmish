@@ -31,8 +31,8 @@
                     <li class="nav-item {% if request.path == '/contact_us/' %}active{% endif %}">
                         <a class="nav-link" href="{% url 'product:contact_us' %}">Contact Us</a>
                     </li>
-                    <li class="nav-item {% if request.path == '/Order/' %}active{% endif %}">
-                        <a class="nav-link" href="{% url 'product:Order' %}">Orders</a>
+                    <li class="nav-item {% if request.path == '/orders/' %}active{% endif %}">
+                        <a class="nav-link" href="{% url 'product:orders' %}">Orders</a>
                     </li>
                     {% if user.is_authenticated %}
                     <li class="nav-item me-3">

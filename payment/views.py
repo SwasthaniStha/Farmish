@@ -1,11 +1,80 @@
 from django.shortcuts import render, redirect
 from cart.cart import Cart
 from payment.forms import ShippingForm, PaymentForm
-from payment.models import ShippingAddress
+from payment.models import ShippingAddress, Order, OrderItem
 from django.contrib import messages
+from django.contrib.auth.models import User
+from store.models import Product
+from django.dispatch import Signal
+from payment.models import OrderItem
+from django.shortcuts import render
+
+def process_order(request):
+	if request.POST:
+		#Get the cart
+		cart = Cart(request)
+		cart_products = cart.get_prods
+		quantities = cart.get_quants
+		totals = cart.cart_total()	
+
+		payment_form = PaymentForm(request.POST or None)
+		#Get Shipping Data
+		my_shipping = request.session.get('my_shipping')
+		
+
+		#Gather order info
+		full_name = my_shipping['shipping_full_name']
+		email = my_shipping['shipping_email']
+		#Create shipping address from session info 
+		shipping_address = f"{my_shipping['shipping_address1']}\n{my_shipping['shipping_address2']}\n{my_shipping['shipping_city']}\n{my_shipping['shipping_state']}\n{my_shipping['shipping_zipcode']}\n{my_shipping['shipping_country']}\n"
+		amount_paid = totals
+		
+		#Create an order
+		if request.user.is_authenticated:
+			user = request.user
+			#create order
+			create_order = Order(user = user, full_name = full_name, email = email, shipping_address = shipping_address, amount_paid = amount_paid)
+			create_order.save()
+
+			#Add order items
+			#get order id
+			order_id = create_order.pk
+			#get product info 
+			for product in cart_products():
+				#get product id
+				product_id = product.id
+				#get product price
+				if product.is_sale:
+					price = product.sale_price
+				else:
+					price = product.rate
+				#get quantity
+				for key, value in quantities().items():
+					if int(key) == product.id:
+						#create order item
+						create_order_item = OrderItem(order_id = order_id, product_id =product_id, user =user, quantity= value, price= price)
+						create_order_item.save()
+
+			messages.success(request, "Order Placed!")
+			return redirect('home')
+
+		else:
+			#not logged in
+			#create order
+			create_order = Order(full_name = full_name, email = email, shipping_address = shipping_address, amount_paid = amount_paid)
+			create_order.save() 
+
+			messages.success(request, "Order Placed!")
+			return redirect('home')
+			
+
+	else:
+		messages.success(request, "Access Denied")
+		return redirect('home')
 
 def billing_info(request):
 	if request.POST:
+		#Get the cart
 		cart = Cart(request)
 		cart_products = cart.get_prods
 		quantities = cart.get_quants
@@ -56,5 +125,16 @@ def checkout(request):
 def payment(request):
 	return render(request,"payment/payment.html", {})	
 
+payment_success_signal = Signal(providing_args=["product_id", "quantity"])
+
 def payment_success(request):
-	return render(request, "payment/payment_success.html", {})
+    # Retrieve the order items for the current user
+    order_items = OrderItem.objects.filter(order__user=request.user)
+
+    # Iterate over the order items and emit the signal for each product
+    for order_item in order_items:
+        product_id = order_item.product.id
+        quantity = order_item.quantity
+        payment_success_signal.send(sender=None, product_id=product_id, quantity=quantity)
+
+    return render(request, "payment/payment_success.html", {})

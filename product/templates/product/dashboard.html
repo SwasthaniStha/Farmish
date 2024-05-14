@@ -1,0 +1,12 @@
+<!-- product/templates/dashboard.html -->
+
+{% extends 'base.html' %}
+{% block content %}
+    <!-- Your dashboard content here -->
+    <script>
+        // Check for notifications and display popups
+        {% for notification in notifications %}
+            alert("{{ notification.message }}");
+        {% endfor %}
+    </script>
+{% endblock %}
