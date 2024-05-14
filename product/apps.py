@@ -6,4 +6,4 @@ class ProductConfig(AppConfig):
 
     def ready(self):
         # Import signal handlers when the app is ready
-         from . import signals
+        from . import signals

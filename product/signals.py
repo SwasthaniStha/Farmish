@@ -2,7 +2,7 @@ from django.dispatch import receiver
 from django.apps import apps
 from django.core.exceptions import ObjectDoesNotExist
 from payment.views import payment_success_signal
-from product.models import Notification
+from .models import Notification
 
 @receiver(payment_success_signal)
 def handle_payment_success(sender, product_id, quantity, **kwargs):
