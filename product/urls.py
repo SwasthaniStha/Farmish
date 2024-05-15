@@ -15,5 +15,5 @@ urlpatterns = [
     path('update_password/', update_password, name='update_password'),
     path('update_user/', update_user, name='update_user'),
     path('orders/', view_orders, name='orders'),
-    path('orders/<int:order_id>/update/', update_order_status, name='update_order_status'),
+    path('update_order_status/<int:order_id>/', update_order_status, name='update_order_status'),
 ]

@@ -42,10 +42,11 @@ class Order(models.Model):
     amount_paid = models.DecimalField(max_digits=7, decimal_places=2)
     date_ordered = models.DateTimeField(auto_now_add=True)
     STATUS_CHOICES = (
-        ('pending', 'Pending'),
-        ('processed', 'Processed'),
-        ('shipped', 'Shipped'),
-        ('delivered', 'Delivered'),
+    ('pending', 'Pending'),
+    ('processing', 'Processing'),
+    ('processed', 'Processed'),
+    ('shipped', 'Shipped'),
+    ('delivered', 'Delivered'),
     )
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
 

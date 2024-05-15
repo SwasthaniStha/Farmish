@@ -26,6 +26,7 @@
             <td>{{ order.shipping_address }}</td>
             <td>
                 <span class="badge {% if order.status == 'pending' %}badge-warning{% elif order.status == 'delivered' %}badge-success{% else %}badge-secondary{% endif %}">{{ order.status }}</span>
+                <a href="{% url 'product:update_order_status' order.id %}">Update Status</a>
             </td>
         </tr>
         {% endfor %}

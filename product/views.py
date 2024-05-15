@@ -5,17 +5,15 @@ from django.shortcuts import render, get_object_or_404
 from django.contrib import messages 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
-from payment.forms import ShippingForm
-from payment.models import ShippingAddress
-from product.models import Notification
-from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import ProductForm
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
-from payment.models import Order, OrderItem
-from .models import Product
-from django.db.models import Q
+from payment.models import Order
+
+
+
+
 
 
 
@@ -156,11 +154,12 @@ def update_user(request):
 
 @login_required
 def update_order_status(request, order_id):
-    order = get_object_or_404(Order, id=order_id, product__farmer=request.user)
+    order = get_object_or_404(Order, id=order_id, orderitem__product__farmer=request.user)
     if request.method == 'POST':
         new_status = request.POST.get('status')
         order.status = new_status
         order.save()
+        return redirect('product:orders')
     context = {
         'order': order,
     }
