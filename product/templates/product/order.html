@@ -1,17 +1,38 @@
 {% extends 'product/base.html' %}
-
 {% block content %}
-{% for order in orders %}
-<h2>Order #{{ order.id }}</h2>
-<p>Status: {{ order.get_status_display }}</p>
-<p>Billing Address: {{ order.shipping_address }}</p>
-<h3>Ordered Items:</h3>
-<ul>
-    {% for item in order_items %}
-    {% if item.order == order %}
-    <li>{{ item.product.product_name }} - Quantity: {{ item.quantity }} - Price: {{ item.price }}</li>
-    {% endif %}
-    {% endfor %}
-</ul>
-{% endfor %}
-{% endblock content %}
+<h1>Orders</h1>
+{% if orders %}
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Order Id</th>
+            <th>Customer Name</th>
+            <th>Product Name</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Location</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for order in orders %}
+        {% for order_item in order.orderitem_set.all %}
+        <tr>
+            <td>#{{ order.id }}</td>
+            <td>{{ order.full_name }}</td>
+            <td>{{ order_item.product.product_name }}</td>
+            <td>{{ order_item.quantity }}</td>
+            <td>{{ order_item.price }}</td>
+            <td>{{ order.shipping_address }}</td>
+            <td>
+                <span class="badge {% if order.status == 'pending' %}badge-warning{% elif order.status == 'delivered' %}badge-success{% else %}badge-secondary{% endif %}">{{ order.status }}</span>
+            </td>
+        </tr>
+        {% endfor %}
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No orders found.</p>
+{% endif %}
+{% endblock %}

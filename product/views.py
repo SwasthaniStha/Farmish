@@ -14,6 +14,10 @@ from .forms import ProductForm
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 from payment.models import Order, OrderItem
+from .models import Product
+from django.db.models import Q
+
+
 
 def add_product(request):
     if request.method == 'POST':
@@ -26,12 +30,25 @@ def add_product(request):
     
     return render(request, 'product/home.html', {'form': form})
 
-
-
-
+@login_required
 def product_list(request):
-    products = Product.objects.all()
+    # Filter products based on the logged-in farmer
+    products = Product.objects.filter(farmer=request.user)
     return render(request, 'product/shop.html', {'products': products})
+
+def view_orders(request):
+    # Filter orders where the product's farmer matches the logged-in user
+    orders = Order.objects.filter(orderitem__product__farmer=request.user).distinct()
+    return render(request, 'product/order.html', {'orders': orders})
+
+
+def view_product(request, product_id):
+    # Retrieve the product object from the database
+    product = get_object_or_404(Product, pk=product_id)
+
+    # Render the product details template with the product object
+    return render(request, 'product/product_detail.html', {'product': product})
+
 
 
 def about_us(request):
@@ -55,13 +72,6 @@ def contact_us(request):
     return render(request, 'product/contact_us.html', {'form': form})
 
 
-
-def view_product(request, product_id):
-    # Retrieve the product object from the database
-    product = get_object_or_404(Product, pk=product_id)
-
-    # Render the product details template with the product object
-    return render(request, 'product/product_detail.html', {'product': product})
 
 def login_user(request):
     if request.method == "POST":
@@ -143,15 +153,6 @@ def update_user(request):
         messages.success(request, "You Must Be Logged In To Access That Page!!")
         return redirect('home')
 
-@login_required
-def view_orders(request):
-    orders = Order.objects.filter(product__farmer=request.user)
-    order_items = OrderItem.objects.filter(order__in=orders)
-    context = {
-        'orders': orders,
-        'order_items': order_items,
-    }
-    return render(request, 'product/order.html', context)
 
 @login_required
 def update_order_status(request, order_id):

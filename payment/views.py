@@ -125,7 +125,7 @@ def checkout(request):
 def payment(request):
 	return render(request,"payment/payment.html", {})	
 
-payment_success_signal = Signal(providing_args=["product_id", "quantity"])
+payment_success_signal = Signal()
 
 def payment_success(request):
     # Retrieve the order items for the current user
