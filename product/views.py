@@ -9,7 +9,7 @@ from django.contrib import messages
 from .forms import ProductForm
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
-from payment.models import Order
+from payment.models import Order,OrderItem
 
 
 
@@ -35,16 +35,13 @@ def product_list(request):
     return render(request, 'product/shop.html', {'products': products})
 
 def view_orders(request):
-    # Filter orders where the product's farmer matches the logged-in user
     orders = Order.objects.filter(orderitem__product__farmer=request.user).distinct()
     return render(request, 'product/order.html', {'orders': orders})
 
 
 def view_product(request, product_id):
-    # Retrieve the product object from the database
+    
     product = get_object_or_404(Product, pk=product_id)
-
-    # Render the product details template with the product object
     return render(request, 'product/product_detail.html', {'product': product})
 
 

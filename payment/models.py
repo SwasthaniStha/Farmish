@@ -60,6 +60,11 @@ class OrderItem(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     quantity = models.PositiveBigIntegerField(default=1)
     price = models.DecimalField(max_digits=7, decimal_places=2)
+    total_price = models.DecimalField(max_digits=7, decimal_places=2, null=True, blank=True)
+    def save(self, *args, **kwargs):
+        if self.price is not None and self.quantity is not None:
+            self.total_price = self.price * self.quantity
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f'Order Item - {str(self.id)}'
