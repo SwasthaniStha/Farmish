@@ -23,16 +23,12 @@
             <td>{{ order_item.product.product_name }}</td>
             <td>{{ order_item.quantity }}</td>
             <td>
-                {% if order_item.quantity == 0 %}
-                  ₹ {{ order_item.price }}
-                {% else %}
                  ₹ {{ order_item.total_price }}
-                {% endif %}
             </td>
             <td>{{ order.shipping_address }}</td>
             <td>
                 <span class="badge {% if order.status == 'pending' %}badge-warning{% elif order.status == 'delivered' %}badge-success{% else %}badge-secondary{% endif %}">{{ order.status }}</span>
-                <a href="{% url 'product:update_order_status' order.id %}">Update Status</a>
+                 <a href="{% url 'product:update_order_status' order.id %}" class="btn btn-primary">Update Status</a>
             </td>
         </tr>
         {% endfor %}
