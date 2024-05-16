@@ -6,7 +6,9 @@ from product.models import Product
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    is_customer = models.BooleanField(default=False)
     is_farmer = models.BooleanField(default=False)
+    is_admin = models.BooleanField(default=False)
     date_modified = models.DateTimeField(auto_now=True)  # Corrected from User to auto_now=True
     phone = models.CharField(max_length=20, blank=True)
     address1 = models.CharField(max_length=200, blank=True)

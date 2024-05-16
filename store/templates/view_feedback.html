@@ -1,0 +1,33 @@
+{% extends 'admin_base.html' %}
+{% block content %}
+
+<div class="container">
+    <h1 class="my-4">View Feedback</h1>
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3 class="card-title">Feedback from {{ message.name }}</h3>
+        </div>
+        <div class="card-body">
+            <p><strong>Email:</strong> {{ message.email }}</p>
+            <p><strong>Subject:</strong> {{ message.subject }}</p>
+            <p><strong>Message:</strong></p>
+            <p>{{ message.message }}</p>
+            <hr>
+            <h4>Reply to this feedback:</h4>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-primary">Send Reply</button>
+            </form>
+            {% if messages %}
+                <ul class="messages">
+                    {% for message in messages %}
+                        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

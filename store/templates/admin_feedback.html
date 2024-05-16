@@ -1,0 +1,88 @@
+{% extends 'admin_base.html' %}
+{% block content %}
+
+<div class="container">
+    <h1 class="my-4">Feedback Management</h1>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="card-title">Feedbacks from Customers</h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Subject</th>
+                                    <th>Message</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for message in messages_from_users %}
+                                    <tr>
+                                        <td>{{ message.name }}</td>
+                                        <td>{{ message.email }}</td>
+                                        <td>{{ message.subject }}</td>
+                                        <td>{{ message.message }}</td>
+                                        <td>
+                                            <a href="{% url 'view_feedback' message.id %}" class="btn btn-primary">View & Reply</a>
+                                        </td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="5" class="text-center">No feedbacks from customers yet.</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="card-title">Feedbacks from Farmers</h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Subject</th>
+                                    <th>Message</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for message in messages_from_farmers %}
+                                    <tr>
+                                        <td>{{ message.name }}</td>
+                                        <td>{{ message.email }}</td>
+                                        <td>{{ message.subject }}</td>
+                                        <td>{{ message.message }}</td>
+                                        <td>
+                                            <a href="{% url 'view_feedback' message.id %}" class="btn btn-primary">View & Reply</a>
+                                        </td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="5" class="text-center">No feedbacks from farmers yet.</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

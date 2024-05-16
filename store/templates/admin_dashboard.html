@@ -1,0 +1,100 @@
+{% extends 'admin_base.html' %}
+
+{% block content %}
+<div class="container">
+    <br><br>
+    <h2>Welcome to the Admin Dashboard</h2>
+    <hr>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card bg-success text-white">
+                <div class="card-header">
+                    <h4>Total Users</h4>
+                </div>
+                <div class="card-body">
+                    <!-- Display the total number of users -->
+                    <p>Total Users: {{ total_customers|add:total_farmers }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card bg-success text-white">
+                <div class="card-header">
+                    <h4>Total Farmers</h4>
+                </div>
+                <div class="card-body">
+                    <!-- Display the total number of farmers -->
+                    <p>Total Farmers: {{ total_farmers }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card bg-success text-white">
+                <div class="card-header">
+                    <h4>Total Customers</h4>
+                </div>
+                <div class="card-body">
+                    <!-- Display the total number of customers -->
+                    <p>Total Customers: {{ total_customers }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card bg-light">
+                <div class="card-header">
+                    <h4>Recent Users</h4>
+                </div>
+                <div class="card-body">
+                    <ul>
+                        <!-- Display a list of recent users -->
+                        {% for user in recent_users %}
+                        <li>{{ user.username }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card bg-light">
+                <div class="card-header">
+                    <h4>Users by Type</h4>
+                </div>
+                <div class="card-body">
+                    <canvas id="usersChart" width="400" height="400"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    var ctx = document.getElementById('usersChart').getContext('2d');
+    var usersChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ['Farmers', 'Customers'],
+            datasets: [{
+                label: 'Users by Type',
+                data: [{{ total_farmers }}, {{ total_customers|add:total_farmers }}],
+                backgroundColor: [
+                    'rgb(25, 135, 84)',
+                    'rgb(255, 99, 132)'
+                ],
+                hoverOffset: 4
+            }]
+        }
+    });
+</script>
+
+
+{% endblock %}

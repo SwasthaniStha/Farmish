@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from .models import Profile
 from product.models import Category
 from django.contrib.auth import authenticate, login, logout
@@ -6,7 +6,15 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
-from .forms import SignUpForm, UpdateUserForm, ChangePasswordForm, UserInfoForm
+from django.contrib.auth.decorators import user_passes_test
+from django.core.mail import send_mail, BadHeaderError, EmailMessage
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+from django.conf import settings
+from .forms import SignUpForm, UpdateUserForm, ChangePasswordForm, UserInfoForm, ContactForm, ReplyForm
+
+from store.models import Messages_from_users
+from product.models import Messages_from_farmers
 
 from product.models import Product
 from payment.forms import ShippingForm
@@ -19,6 +27,74 @@ import json
 from cart.cart import Cart
 from django.core.exceptions import ObjectDoesNotExist
 
+def is_admin(user):
+    return user.is_authenticated and user.profile.is_admin
+
+@user_passes_test(is_admin)
+def admin_dashboard(request):
+    total_users = User.objects.all().count()
+    total_farmers = Profile.objects.filter(is_farmer=True).count()
+    total_customers = Profile.objects.filter(is_customer=True).count()
+    recent_users = User.objects.order_by('-date_joined')[:5]
+
+    return render(request, 'admin_dashboard.html', {'total_users': total_users, 'total_farmers': total_farmers, 'total_customers': total_customers, 'recent_users' : recent_users})
+
+@user_passes_test(is_admin)
+def admin_manage(request):
+    users = User.objects.all()
+    return render(request, 'admin_manage.html', {'users': users, 'user_type': 'admin'})
+
+def admin_update_user(request, user_id):
+    user = User.objects.get(id=user_id)
+    if request.method == 'POST':
+        is_farmer = request.POST.get('is_farmer')
+        is_customer = request.POST.get('is_customer')
+        user.profile.is_farmer = is_farmer == 'on'
+        user.profile.is_customer = is_customer == 'on'    
+        user.profile.save()
+        messages.success(request, f'{user.username} updated successfully!')
+        return redirect('admin_manage')
+    context = {'user': user}
+    return render(request, 'admin_update_user.html', context)
+
+def admin_delete_user(request, user_id):
+    user = User.objects.get(pk=user_id)
+    user.delete()
+    messages.success(request, f'{user.username} deleted successfully!')
+    return HttpResponseRedirect(reverse('admin_manage'))
+
+def admin_feedback(request):
+    messages_from_users = Messages_from_users.objects.all()
+    messages_from_farmers = Messages_from_farmers.objects.all()
+
+    return render(request, 'admin_feedback.html', {'messages_from_users': messages_from_users, 'messages_from_farmers': messages_from_farmers})
+
+def view_feedback(request, message_id):
+    message = get_object_or_404(Messages_from_users, id=message_id)
+    form = ReplyForm()
+    return render(request, 'view_feedback.html', {'message': message, 'form': form})
+
+
+def reply_feedback(request, message_id):
+    message = get_object_or_404(Messages_from_users, id=message_id)
+    if request.method == 'POST':
+        form = ReplyForm(request.POST)
+        if form.is_valid():
+            reply_message = form.cleaned_data['reply_message']
+            subject = "Reply to Your Feedback"
+            from_email = settings.EMAIL_HOST_USER
+            recipient_list = [message.email]
+            try:
+                send_mail(subject, reply_message, from_email, recipient_list, fail_silently=False)
+                messages.success(request, 'Your reply has been sent.')
+                return redirect('admin_feedback')
+            except Exception as e:
+                messages.error(request, f'Failed to send the reply. Error: {e}')
+        else:
+            messages.error(request, 'Invalid form submission. Email not sent.')
+    else:
+        form = ReplyForm()
+    return render(request, 'view_feedback.html', {'message': message, 'form': form})
 
 def search(request):
 	# Determine if they filled out the form
@@ -152,32 +228,33 @@ def login_user(request):
     if request.method == "POST":
         username = request.POST.get('username')
         password = request.POST.get('password')
+        user_type = request.POST.get('user_type')  # Get the user type from the form
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-
-            # Do some shopping cart stuff
-            current_user_profile = Profile.objects.get(user=user)
-
-            # Check if the user is a farmer or consumer
-            if current_user_profile.is_farmer:
-                return redirect('product:product_list')
-            else:
+            profile = Profile.objects.get(user=user)
+            if profile.is_farmer and user_type == 'farmer':  # Check if user is farmer
+                return redirect('product:product_list')  # Redirect to farmer dashboard
+            elif not profile.is_farmer and user_type == 'consumer':  # Check if user is consumer
                 # Get their saved cart from the database
-                saved_cart = current_user_profile.old_cart
-                # Convert database string to python dictionary
+                saved_cart = profile.old_cart
+                # Convert database string to a Python dictionary
                 if saved_cart:
-                    # Convert to dictionary using JSON
+                    # Convert to a dictionary using JSON
                     converted_cart = json.loads(saved_cart)
                     # Add the loaded cart dictionary to our session
                     # Get the cart
                     cart = Cart(request)
-                    # Loop thru the cart and add the items from the database
+                    # Loop through the cart and add the items from the database
                     for key, value in converted_cart.items():
                         cart.db_add(product=key, quantity=value)
-
                 messages.success(request, "You Have Been Logged In!")
                 return redirect('home')
+            elif profile.is_admin and user_type == 'admin':  # Check if user is admin
+                return redirect('admin_dashboard')  # Redirect to admin dashboard
+            else:
+                messages.error(request, "You are not authorized to access this page.")
+                return redirect('login')
         else:
             messages.error(request, "Invalid username or password. Please try again.")
             return redirect('login')
@@ -192,26 +269,33 @@ def logout_user(request):
 
 
 def register_user(request):
-	form = SignUpForm()
-	if request.method == "POST":
-		form = SignUpForm(request.POST)
-		if form.is_valid():
-			form.save()
-			username = form.cleaned_data['username']
-			password = form.cleaned_data['password1']
-			# log in user
-			user = authenticate(username=username, password=password)
-			login(request, user)
-			messages.success(request, ("Username Created - Please Fill Out Your User Info Below..."))
-			return redirect('update_info')
-		else:
-			messages.success(request, ("Whoops! There was a problem Registering, please try again..."))
-			return redirect('register')
-	else:
-		return render(request, 'register.html', {'form':form})
-def activate(request):
+    if request.method == 'POST':
+        form = SignUpForm(request.POST)
+        if form.is_valid():
+            try:
+                user = form.save(commit=False)
+                user.is_active = True  # Activates the user immediately upon registration
+                user.save()
+                login(request, user)
+                messages.success(request, "Your account has been created and is active.")
 
-    return render(request,'authentication/forgot_password.html')
+                # Send a welcome email to the new user
+                subject = "Welcome to Farmish!"
+                message = "Hello "+user.first_name+"!! \n"+"Welcome to Farmish. \n Thank you for visiting our website. We are glad to have you with us. \n. \n \n Thanking you, \n Farmish"
+                from_email = settings.EMAIL_HOST_USER
+                recipient_list = [user.email]
+                send_mail(subject, message, from_email, recipient_list, fail_silently=False)
+
+                return redirect('home')
+            except Exception as e:
+                messages.error(request, f"Error: {e}")
+                return render(request, "register.html", {'form': form})
+        else:
+            messages.error(request, "Invalid form submission. Please check your input.")
+            return render(request, "register.html", {'form': form})
+    else:
+        form = SignUpForm()
+        return render(request, "register.html", {'form': form})
 
 from django.contrib.auth.decorators import login_required
 from payment.models import Order
