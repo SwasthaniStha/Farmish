@@ -68,7 +68,8 @@
                     Billing Info
                 </div>
                 <div class="card-body">
-                    
+                    <form method = "POST" action = "{% url 'process_order' %}">
+                        {% csrf_token %}
                     {{ billing_form.as_p }}
                 </div>
             </div>

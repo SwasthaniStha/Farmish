@@ -5,12 +5,15 @@ from django.shortcuts import render, get_object_or_404
 from django.contrib import messages 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
-from payment.forms import ShippingForm
-from payment.models import ShippingAddress
-
-from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import ProductForm
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, get_object_or_404, redirect
+from payment.models import Order,OrderItem
+from product.models import Notification
+
+
+
 
 def add_product(request):
     if request.method == 'POST':
@@ -23,12 +26,34 @@ def add_product(request):
     
     return render(request, 'product/home.html', {'form': form})
 
+from django.contrib.auth.decorators import login_required
+from product.models import Notification, Product
 
-
-
+@login_required
 def product_list(request):
-    products = Product.objects.all()
-    return render(request, 'product/shop.html', {'products': products})
+    # Filter products based on the logged-in farmer
+    products = Product.objects.filter(farmer=request.user)
+    
+    # Retrieve unread notifications for the farmer
+    notifications = Notification.objects.filter(user=request.user, is_read=False).order_by('-created_at')
+    
+    context = {
+        'products': products,
+        'notifications': notifications,
+    }
+    
+    return render(request, 'product/shop.html', context)
+
+def view_orders(request):
+    orders = Order.objects.filter(orderitem__product__farmer=request.user).distinct()
+    return render(request, 'product/order.html', {'orders': orders})
+
+
+def view_product(request, product_id):
+    
+    product = get_object_or_404(Product, pk=product_id)
+    return render(request, 'product/product_detail.html', {'product': product})
+
 
 
 def about_us(request):
@@ -51,16 +76,7 @@ def contact_us(request):
 
     return render(request, 'product/contact_us.html', {'form': form})
 
-def order_view(request):
-    orders = Order.objects.all()
-    return render(request, 'product/order.html', {'orders': orders})
 
-def view_product(request, product_id):
-    # Retrieve the product object from the database
-    product = get_object_or_404(Product, pk=product_id)
-
-    # Render the product details template with the product object
-    return render(request, 'product/product_detail.html', {'product': product})
 
 def login_user(request):
     if request.method == "POST":
@@ -141,4 +157,34 @@ def update_user(request):
     else:
         messages.success(request, "You Must Be Logged In To Access That Page!!")
         return redirect('home')
+
+
+
+@login_required
+def update_order_status(request, order_id):
+    order = get_object_or_404(Order, id=order_id, orderitem__product__farmer=request.user)
+    if request.method == 'POST':
+        new_status = request.POST.get('status')   
+        # Check if the new status is "delivered"
+        if new_status == 'delivered':
+            # Update the sold quantity for each product in the order
+            for order_item in order.orderitem_set.all():
+                product = order_item.product
+                product.sold_quantity += order_item.quantity
+                product.save()
+        
+        order.status = new_status
+        order.save()
+        return redirect('product:orders')
+    context = {
+        'order': order,
+    }
+    return render(request, 'product/update_order_status.html', context)
+
+@login_required
+def notifications(request):
+    notifications = Notification.objects.filter(user=request.user, is_read=False).order_by('-created_at')
+    return render(request, 'notifications.html', {'notifications': notifications})
+
+
 

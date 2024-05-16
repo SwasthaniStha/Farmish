@@ -1,6 +1,48 @@
 from django.db import models
 from django.utils import timezone
-import datetime
+from django.contrib.auth.models import User
+
+#Categories of Products
+class Category(models.Model):
+	name = models.CharField(max_length=50)
+
+	def __str__(self):
+		return self.name
+
+	class Meta:
+		verbose_name_plural = 'categories'
+
+class Product(models.Model):
+    id = models.AutoField(primary_key=True)
+    farmer = models.ForeignKey(User, on_delete=models.CASCADE, default=1)
+    product_name = models.CharField(max_length=100)
+    rate = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Rate (NPR)')
+    total_quantity = models.PositiveIntegerField(default=0)
+    available_quantity = models.PositiveIntegerField(default=0)
+    sold_quantity = models.PositiveIntegerField(default=0)
+    product_image = models.ImageField(upload_to='product_images/', max_length=None)
+    Listed_Date = models.DateTimeField(default=timezone.now)
+    lifespan = models.IntegerField(default=0, help_text="Lifespan in days")
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    description = models.CharField(max_length=250, default='', blank=True, null=True)
+    is_sale = models.BooleanField(default=False)
+    sale_price = models.DecimalField(default=0, decimal_places=2, max_digits=6)
+
+    def calculate_available_quantity(self):
+        return self.total_quantity - self.sold_quantity
+
+    def save(self, *args, **kwargs):
+        self.available_quantity = self.calculate_available_quantity()
+        super().save(*args, **kwargs)  # Save the product first
+
+    def __str__(self):
+        return self.product_name
+
+    class Meta:
+        app_label = 'product'
+
+    def available_quantity(self):
+        return self.total_quantity - self.sold_quantity
 
 def default_category_id():
     # Create categories if they don't exist
@@ -24,50 +66,6 @@ def default_category_id():
 
     return fresh_category, pantry_category, dairy_category, meat_category
 
-#Categories of Products
-class Category(models.Model):
-	name = models.CharField(max_length=50)
-
-	def __str__(self):
-		return self.name
-
-	#@daverobb2011
-	class Meta:
-		verbose_name_plural = 'categories'
-
-class Product(models.Model):
-    id = models.AutoField(primary_key=True)
-    farmer_name = models.CharField(max_length=100)
-    product_name = models.CharField(max_length=100)
-    rate = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Rate (NPR)')
-    total_quantity = models.PositiveIntegerField(default=0)
-    available_quantity = models.PositiveIntegerField(default=0)
-    sold_quantity = models.PositiveIntegerField(default=0)
-    product_image = models.ImageField(upload_to='product_images/', max_length=None)
-    Listed_Date = models.DateTimeField(default=timezone.now)
-    lifespan = models.IntegerField(default=0, help_text="Lifespan in days")
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, default=default_category_id)
-    description = models.CharField(max_length=250, default='', blank=True, null=True)
-    is_sale = models.BooleanField(default=False)
-    sale_price = models.DecimalField(default=0, decimal_places=2, max_digits=6)
-
-    def calculate_available_quantity(self):
-        return self.total_quantity - self.sold_quantity
-
-    def save(self, *args, **kwargs):
-        self.available_quantity = self.calculate_available_quantity()
-        super().save(*args, **kwargs)  # Save the product first
-
-    def __str__(self):
-        return self.product_name
-
-    class Meta:
-        app_label = 'product'
-
-    def available_quantity(self):
-        return self.total_quantity - self.sold_quantity
-
-        
 # Customers
 class Customer(models.Model):
 	first_name = models.CharField(max_length=50)
@@ -88,5 +86,12 @@ class Messages_from_farmers(models.Model):
     def __str__(self):
         return f"Message from {self.name}"
 
-      
 
+class Notification(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"Notification for {self.user.username}"

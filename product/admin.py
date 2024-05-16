@@ -7,3 +7,4 @@ admin.site.register(Customer)
 admin.site.register(Messages_from_farmers)
 
 
+

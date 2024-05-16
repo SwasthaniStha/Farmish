@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+<h1>Your Orders</h1>
+
+{% if order_items %}
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Order Id</th>
+            <th>Farmer Name</th>
+            <th>Product Name</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for order_item in order_items %}
+        <tr>
+            <td>#{{ order_item.order.id }}</td>
+            <td>{{ order_item.product.farmer.username }}</td>
+            <td>{{ order_item.product.product_name }}</td>
+            <td>{{ order_item.quantity }}</td>
+            <td>₹ {{ order_item.total_price }}</td>
+            <td>
+                <span class="badge {% if order_item.order.status == 'pending' %}badge-warning{% elif order_item.order.status == 'delivered' %}badge-success{% else %}badge-secondary{% endif %}">{{ order_item.order.get_status_display }}</span>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No orders found.</p>
+{% endif %}
+{% endblock %}
