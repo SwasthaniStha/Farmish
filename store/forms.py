@@ -4,6 +4,9 @@ from django import forms
 from .models import Profile
 from .models import Messages_from_users
 
+class ReplyForm(forms.Form):
+    reply_message = forms.CharField(widget=forms.Textarea)
+
 class ContactForm(forms.ModelForm):
     class Meta:
         model = Messages_from_users
