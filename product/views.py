@@ -10,9 +10,7 @@ from .forms import ProductForm
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 from payment.models import Order,OrderItem
-from django.http import HttpResponseForbidden
-
-
+from product.models import Notification
 
 
 
@@ -28,12 +26,20 @@ def add_product(request):
     
     return render(request, 'product/home.html', {'form': form})
 
+from django.contrib.auth.decorators import login_required
+from product.models import Notification, Product
+
 @login_required
 def product_list(request):
     # Filter products based on the logged-in farmer
     products = Product.objects.filter(farmer=request.user)
+    
+    # Retrieve unread notifications for the farmer
+    notifications = Notification.objects.filter(user=request.user, is_read=False).order_by('-created_at')
+    
     context = {
         'products': products,
+        'notifications': notifications,
     }
     
     return render(request, 'product/shop.html', context)
@@ -174,6 +180,11 @@ def update_order_status(request, order_id):
         'order': order,
     }
     return render(request, 'product/update_order_status.html', context)
+
+@login_required
+def notifications(request):
+    notifications = Notification.objects.filter(user=request.user, is_read=False).order_by('-created_at')
+    return render(request, 'notifications.html', {'notifications': notifications})
 
 
 

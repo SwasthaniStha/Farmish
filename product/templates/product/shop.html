@@ -6,39 +6,60 @@
 <h1>My Shop</h1>
 
 <table class="table">
-    <thead>
-        <tr>
-            <th>Product Name</th>
-            <th>Price</th>
-            <th>Discounted Price</th>
-            <th>Total Quantity</th>
-            <th>Available Quantity</th>
-            <th>Sold Quantity</th>
-            <th>Listed Date</th>
-            <th>Lifespan</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for product in products %}
-        <tr>
-            <td>{{ product.product_name }}</td>
-            <td>₹{{ product.rate }}</td>
-            <td>
-                {% if product.is_sale %}
-                ₹{{ product.sale_price }}
-                {% else %}
-                -
-                {% endif %}
-            </td>
-            <td>{{ product.total_quantity }}</td>
-            <td>{{ product.available_quantity }}</td>
-            <td>{{ product.sold_quantity }}</td>
-            <td>{{ product.Listed_Date }}</td>
-            <td>{{ product.lifespan }} days</td>
-            <td><a href="{% url 'product:view_product' product.id %}" class="btn btn-primary">View Product</a></td>
-        </tr>
-        {% endfor %}
-    </tbody>
+  <thead>
+    <tr>
+      <th>Product Name</th>
+      <th>Price</th>
+      <th>Discounted Price</th>
+      <th>Total Quantity</th>
+      <th>Available Quantity</th>
+      <th>Sold Quantity</th>
+      <th>Listed Date</th>
+      <th>Lifespan</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for product in products %}
+    <tr>
+      <td>{{ product.product_name }}</td>
+      <td>₹{{ product.rate }}</td>
+      <td>
+        {% if product.is_sale %}
+        ₹{{ product.sale_price }}
+        {% else %}
+        -
+        {% endif %}
+      </td>
+      <td>{{ product.total_quantity }}</td>
+      <td>{{ product.available_quantity }}</td>
+      <td>{{ product.sold_quantity }}</td>
+      <td>{{ product.Listed_Date }}</td>
+      <td>{{ product.lifespan }} days</td>
+      <td><a href="{% url 'product:view_product' product.id %}" class="btn btn-primary">View Product</a></td>
+    </tr>
+    {% endfor %}
+  </tbody>
 </table>
+
+<h2>Notifications</h2>
+{% if notifications %}
+<table class="table">
+  <thead>
+    <tr>
+      <th>Message</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for notification in notifications %}
+    <tr>
+      <td>{{ notification.message}}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>No new notifications.</p>
+{% endif %}
+
 {% endblock %}
