@@ -36,11 +36,14 @@
         footer {
             background-color: #198754;
             color: #000;
-            position: fixed;
-            bottom: 0;
             left: 0;
             width: 100%;
-            z-index: 1000; /* Add a high z-index value */
+            z-index: 1000;
+            padding: 20px 0;
+        }
+
+        footer p {
+            font-size: 14px;
         }
 
         /* Body */
@@ -52,14 +55,12 @@
         body {
             display: flex;
             flex-direction: column;
-            position: relative; /* Add relative positioning */
-            min-height: 100vh; /* Set a minimum height */
-            padding-bottom: 56px; /* Adjust the value based on your footer height */
+            min-height: 100vh;
         }
 
         /* Content */
         .content {
-            flex: 1 0 auto; /* Allow content to grow and shrink */
+            flex: 1 0 auto;
         }
     </style>
 </head>

@@ -10,8 +10,8 @@ def handle_payment_success(sender, product_id, quantity, **kwargs):
         # Dynamically get the Product model
         Product = apps.get_model('product', 'Product')
         product = Product.objects.get(pk=product_id)
-
-        # Check if the product belongs to the sender
+        
+        # Check if the product belongs to the farmer
         if product.farmer == sender:
             # Create a notification for the farmer
             notification = Notification(

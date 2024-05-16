@@ -135,6 +135,6 @@ def payment_success(request):
     for order_item in order_items:
         product_id = order_item.product.id
         quantity = order_item.quantity
-        payment_success_signal.send(sender=None, product_id=product_id, quantity=quantity)
+        payment_success_signal.send(sender=request.user, product_id=product_id, quantity=quantity)
 
     return render(request, "payment/payment_success.html", {})

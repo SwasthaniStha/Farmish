@@ -150,14 +150,20 @@ def update_user(request):
         return redirect('home')
 
 
-from django.shortcuts import get_object_or_404, render, redirect
-from payment.models import Order
 
 @login_required
 def update_order_status(request, order_id):
     order = get_object_or_404(Order, id=order_id, orderitem__product__farmer=request.user)
     if request.method == 'POST':
-        new_status = request.POST.get('status')
+        new_status = request.POST.get('status')   
+        # Check if the new status is "delivered"
+        if new_status == 'delivered':
+            # Update the sold quantity for each product in the order
+            for order_item in order.orderitem_set.all():
+                product = order_item.product
+                product.sold_quantity += order_item.quantity
+                product.save()
+        
         order.status = new_status
         order.save()
         return redirect('product:orders')
