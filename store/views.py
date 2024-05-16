@@ -222,7 +222,17 @@ def about(request):
 	return render(request, 'about.html', {})	
 
 def contact_us(request):
-	return render(request, 'contact_us.html', {})	
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Your message has been sent successfully!")
+            return redirect('home')
+        else:
+            messages.error(request, "Invalid form submission. Please check your input.")
+    else:
+        form = ContactForm()
+    return render(request, 'contact_us.html', {'form': form})
 
 def login_user(request):
     if request.method == "POST":
