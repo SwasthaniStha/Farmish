@@ -228,32 +228,33 @@ def login_user(request):
     if request.method == "POST":
         username = request.POST.get('username')
         password = request.POST.get('password')
+        user_type = request.POST.get('user_type')  # Get the user type from the form
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-
-            # Do some shopping cart stuff
-            current_user_profile = Profile.objects.get(user=user)
-
-            # Check if the user is a farmer or consumer
-            if current_user_profile.is_farmer:
-                return redirect('product:product_list')
-            else:
+            profile = Profile.objects.get(user=user)
+            if profile.is_farmer and user_type == 'farmer':  # Check if user is farmer
+                return redirect('product:product_list')  # Redirect to farmer dashboard
+            elif not profile.is_farmer and user_type == 'consumer':  # Check if user is consumer
                 # Get their saved cart from the database
-                saved_cart = current_user_profile.old_cart
-                # Convert database string to python dictionary
+                saved_cart = profile.old_cart
+                # Convert database string to a Python dictionary
                 if saved_cart:
-                    # Convert to dictionary using JSON
+                    # Convert to a dictionary using JSON
                     converted_cart = json.loads(saved_cart)
                     # Add the loaded cart dictionary to our session
                     # Get the cart
                     cart = Cart(request)
-                    # Loop thru the cart and add the items from the database
+                    # Loop through the cart and add the items from the database
                     for key, value in converted_cart.items():
                         cart.db_add(product=key, quantity=value)
-
                 messages.success(request, "You Have Been Logged In!")
                 return redirect('home')
+            elif profile.is_admin and user_type == 'admin':  # Check if user is admin
+                return redirect('admin_dashboard')  # Redirect to admin dashboard
+            else:
+                messages.error(request, "You are not authorized to access this page.")
+                return redirect('login')
         else:
             messages.error(request, "Invalid username or password. Please try again.")
             return redirect('login')
