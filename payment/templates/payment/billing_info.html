@@ -57,8 +57,13 @@
                     State: {{ shipping_info.shipping_state }}<br/>
                     Zipcode: {{ shipping_info.shipping_zipcode }}<br/>
                     Country: {{ shipping_info.shipping_country }}<br/>
+                    Delivery Method: {{shipping_info.delivery_method}}<br/>
                     <a href="{% url 'checkout' %}" class="btn btn-sm btn-outline-secondary">Update Shipping</a>
                 </div>
+                {% if order.status %}
+                <td><small class = "badge badge-success">Completed</small></td>
+                {%else%}<td><small class = "badge badge-warning">Pending</small></td>
+                {% endif %}
             </div>
             <br/>
             
