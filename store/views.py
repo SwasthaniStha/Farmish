@@ -11,6 +11,7 @@ from .forms import SignUpForm, UpdateUserForm, ChangePasswordForm, UserInfoForm
 from product.models import Product
 from payment.forms import ShippingForm
 from payment.models import ShippingAddress
+from payment.models import OrderItem, Order
 
 from django import forms
 from django.db.models import Q
@@ -211,3 +212,12 @@ def register_user(request):
 def activate(request):
 
     return render(request,'authentication/forgot_password.html')
+
+from django.contrib.auth.decorators import login_required
+from payment.models import Order
+
+@login_required
+def order_list(request):
+    order_items = OrderItem.objects.filter(user=request.user).select_related('order', 'product')
+    context = {'order_items': order_items}
+    return render(request, 'order_list.html', context)

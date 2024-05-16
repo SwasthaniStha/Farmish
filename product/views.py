@@ -17,7 +17,6 @@ from django.http import HttpResponseForbidden
 
 
 
-
 def add_product(request):
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES)
@@ -33,7 +32,11 @@ def add_product(request):
 def product_list(request):
     # Filter products based on the logged-in farmer
     products = Product.objects.filter(farmer=request.user)
-    return render(request, 'product/shop.html', {'products': products})
+    context = {
+        'products': products,
+    }
+    
+    return render(request, 'product/shop.html', context)
 
 def view_orders(request):
     orders = Order.objects.filter(orderitem__product__farmer=request.user).distinct()
@@ -171,3 +174,6 @@ def update_order_status(request, order_id):
         'order': order,
     }
     return render(request, 'product/update_order_status.html', context)
+
+
+

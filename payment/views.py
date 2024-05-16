@@ -8,6 +8,9 @@ from store.models import Product
 from django.dispatch import Signal
 from payment.models import OrderItem
 from django.shortcuts import render
+from django.core.mail import send_mail
+from django.conf import settings
+from django.contrib.auth.decorators import login_required
 
 def process_order(request):
 	if request.POST:
@@ -125,16 +128,30 @@ def checkout(request):
 def payment(request):
 	return render(request,"payment/payment.html", {})	
 
-payment_success_signal = Signal()
 
+@login_required
 def payment_success(request):
     # Retrieve the order items for the current user
     order_items = OrderItem.objects.filter(order__user=request.user)
 
-    # Iterate over the order items and emit the signal for each product
+    # Iterate over the order items and send email notifications
     for order_item in order_items:
-        product_id = order_item.product.id
+        product = order_item.product
         quantity = order_item.quantity
-        payment_success_signal.send(sender=request.user, product_id=product_id, quantity=quantity)
+
+        # Check if the product belongs to a farmer
+        if product.farmer:
+            # Send an email notification to the farmer
+            subject = f"Your product {product.product_name} has been ordered"
+            message = f"Dear {product.farmer.username},\n\n" \
+                      f"Your product '{product.product_name}' has been ordered for a quantity of {quantity}.\n\n" \
+                      f"Best regards,\nFarmish Team"
+            recipient_list = [product.farmer.email]
+            send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, recipient_list, fail_silently=False)
 
     return render(request, "payment/payment_success.html", {})
+
+
+
+
+

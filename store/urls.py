@@ -18,4 +18,5 @@ urlpatterns = [
     
     # Include the URLs of the 'product' app with the namespace 'product'
     path('product/', include('product.urls', namespace='product')),
+    path('order_list/', views.order_list, name='order_list'),
 ]

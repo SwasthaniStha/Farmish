@@ -1,8 +1,10 @@
 {% extends 'product/base.html' %}
+
 {% block title %}My Shop - Farmer's Dashboard{% endblock %}
 
 {% block content %}
 <h1>My Shop</h1>
+
 <table class="table">
     <thead>
         <tr>
@@ -24,9 +26,9 @@
             <td>₹{{ product.rate }}</td>
             <td>
                 {% if product.is_sale %}
-                 ₹{{ product.sale_price }}
+                ₹{{ product.sale_price }}
                 {% else %}
-                    -
+                -
                 {% endif %}
             </td>
             <td>{{ product.total_quantity }}</td>
