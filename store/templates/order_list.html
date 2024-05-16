@@ -1,6 +1,5 @@
 {% extends 'base.html' %}
 
-
 {% block content %}
 <h1>Your Orders</h1>
 
@@ -24,9 +23,15 @@
             <td>{{ order_item.product.product_name }}</td>
             <td>{{ order_item.quantity }}</td>
             <td>₹ {{ order_item.total_price }}</td>
+
+
             <td>
-                <span class="badge {% if order_item.order.status == 'pending' %}badge-warning{% elif order_item.order.status == 'delivered' %}badge-success{% else %}badge-secondary{% endif %}">{{ order_item.order.get_status_display }}</span>
+                <span class="badge {% if order_item.order.status == 'pending' %}bg-danger{% elif order_item.order.status == 'delivered' %}bg-success{% else %}bg-secondary{% endif %}">
+                    {{ order_item.order.get_status_display }}
+                </span>
             </td>
+            
+            
         </tr>
         {% endfor %}
     </tbody>
