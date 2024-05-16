@@ -13,7 +13,9 @@ class ShippingAddress(models.Model):
 	shipping_state = models.CharField(max_length=255, null=True, blank=True)
 	shipping_zipcode = models.CharField(max_length=255, null=True, blank=True)
 	shipping_country = models.CharField(max_length=255)
-
+	delivery_method = models.CharField(max_length = 10, choices = (('Pickup', 'Pickup'), ('Delivery', 'Delivery')), default='Delivery')
+    
+   
 
 	# Don't pluralize address
 	class Meta:
